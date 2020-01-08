@@ -7,5 +7,6 @@ module.exports = {
     define: {
       timestamps: false,
       underscored: true,
+      freezeTableName: true
     },
   };

@@ -1,6 +1,8 @@
 const { Model, DataTypes } = require('sequelize');
+const sequelizePaginate = require('sequelize-paginate');
 
-class Foto extends Model {
+
+class Produto extends Model {
     static init(sequelize) {
       super.init({
         nome: DataTypes.STRING(100),
@@ -17,5 +19,7 @@ class Foto extends Model {
         this.belongsTo(models.Categoria, { foreignKey: 'id_categoria', as: 'categoria' });
     }
   }
+
+  sequelizePaginate.paginate(Produto);
   
-  module.exports = Foto;
+  module.exports = Produto;

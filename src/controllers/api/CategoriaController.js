@@ -1,0 +1,29 @@
+const Categoria = require('../../models/Categoria');
+
+module.exports = {
+  async listarTodos(req, res) {
+    const categorias = await Categoria.findAll({ order: [['nome', 'ASC']] });
+
+    return res.json(categorias);
+  },
+
+  async cadastrar(req, res){
+    const { nome } = req.body;
+
+    const categoria = await Categoria.create({ nome });
+
+    return res.json(categoria);
+  },
+
+  async deletar(req, res){
+    const { id } = req.body;
+
+    const categoria = await Categoria.destroy({
+      where: {
+        id
+      }
+    });
+
+    return res.send();
+  }
+};
