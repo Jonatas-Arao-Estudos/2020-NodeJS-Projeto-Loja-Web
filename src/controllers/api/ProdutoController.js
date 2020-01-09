@@ -1,3 +1,4 @@
+const Categoria = require('../../models/Categoria');
 const Produto = require('../../models/Produto');
 
 module.exports = {
@@ -24,9 +25,13 @@ module.exports = {
     const { id_produto } = req.params;
     const produto = await Produto.findByPk(id_produto);
 
+    if (!produto) {
+      return res.status(400).json({ error: 'Produto não encontrado' });
+    }
+
     return res.json(produto);
   },
-  
+
   async listarProdutoCategoria(req, res) {
     const { page = 1 } = req.query;
     const { id_categoria } = req.params;
@@ -46,5 +51,59 @@ module.exports = {
     };
 
     return res.json(produtos);
+  },
+
+  async cadastrar(req, res){
+    const { nome, descricao, valor, fabricante, id_categoria } = req.body;
+
+    const categoria = await Categoria.findByPk(id_categoria);
+
+    if (!categoria) {
+      return res.status(400).json({ error: 'Categoria não encontrada' });
+    }
+
+    const produto = await Produto.create({
+      nome, descricao, valor, fabricante, id_categoria
+    });
+
+    return res.json(produto);
+  },
+
+  async deletar(req, res){
+    const { id } = req.body;
+
+    const verifica = await Produto.findByPk(id);
+
+    if (!verifica) {
+      return res.status(400).json({ error: 'Produto não encontrado' });
+    }
+
+    const produto = await Produto.destroy({
+      where: {
+        id
+      }
+    });
+
+    return res.json({ success: 'Produto Deletado'});
+  },
+
+  async atualizar(req, res){
+    const { id, nome, descricao, valor, fabricante, id_categoria } = req.body;
+
+    const verifica = await Produto.findByPk(id);
+
+    if (!verifica) {
+      return res.status(400).json({ error: 'Produto não encontrado' });
+    }
+
+    const produto = await Produto.update({
+      nome, descricao, valor, fabricante, id_categoria
+    }, {
+      where: {
+        id
+      }
+    });
+
+    return res.json({ success: 'Produto Atualizado'});
   }
 };

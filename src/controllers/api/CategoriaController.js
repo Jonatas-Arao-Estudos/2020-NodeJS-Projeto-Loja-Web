@@ -18,12 +18,38 @@ module.exports = {
   async deletar(req, res){
     const { id } = req.body;
 
+    const verifica = await Categoria.findByPk(id);
+
+    if (!verifica) {
+      return res.status(400).json({ error: 'Categoria não encontrada' });
+    }
+
     const categoria = await Categoria.destroy({
       where: {
         id
       }
     });
 
-    return res.send();
+    return res.json({ success: 'Categoria Deletada'});
+  },
+
+  async atualizar(req, res){
+    const { id, nome } = req.body;
+
+    const verifica = await Categoria.findByPk(id);
+
+    if (!verifica) {
+      return res.status(400).json({ error: 'Categoria não encontrada' });
+    }
+
+    const categoria = await Categoria.update({
+      nome
+    }, {
+      where: {
+        id
+      }
+    });
+
+    return res.json({ success: 'Categoria Atualizada'});
   }
 };
