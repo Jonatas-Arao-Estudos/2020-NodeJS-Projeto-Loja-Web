@@ -6,6 +6,12 @@ module.exports = {
     const { id_produto } = req.params;
     const fotos = await Foto.findAll({ where: { id_produto } });
 
+    if(fotos.length == 0){
+      return res.json([{
+        "foto": "https://www.layoutit.com/img/people-q-c-600-200-1.jpg"
+      }]);
+    }
+
     return res.json(fotos);
   },
 
