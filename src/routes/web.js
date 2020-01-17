@@ -8,10 +8,49 @@ const routes = express.Router();
 
 //Web
 
-routes.get('/', async function (req, res) {
-  const { page = 1 } = req.query;
+routes.post('/', async function (req, res, next){
+  const { categoriaId, categoriaNome, excluirIDcategoria } = req.body;
+
+  if(categoriaId){
+    atualizarCategoria = await CategoriaController.atualizar(req);
+    if(atualizarCategoria.success){
+      res.locals.resposta = atualizarCategoria.success;
+    }else{
+      res.locals.resposta = atualizarCategoria.error;
+    }
+  }
+  else if(categoriaNome){
+    cadastrarCategoria = await CategoriaController.cadastrar(req);
+    if(cadastrarCategoria.success){
+      res.locals.resposta = cadastrarCategoria.success;
+    }else{
+      res.locals.resposta = cadastrarCategoria.error;
+    }
+  }
+  else if(excluirIDcategoria){
+    deletarCategoria = await CategoriaController.deletar(req);
+    if(deletarCategoria.success){
+      res.locals.resposta = deletarCategoria.success;
+    }else{
+      res.locals.resposta = deletarCategoria.error;
+    }
+  }
+
+  next();
+});
+
+routes.all('/', async function (req, res) {
+
+  //Recuperando dados do banco para a página  
+  const { page = 1, categoria, pesquisa } = req.query;
   categorias = await CategoriaController.listarTodos();
-  produtos = await ProdutoController.listarTodos(page);
+  if(categoria){
+    produtos = await ProdutoController.listarProdutoCategoria(page,categoria);
+  }else if(pesquisa){
+    produtos = await ProdutoController.listarProdutoPesquisa(page,pesquisa);
+  }else{
+    produtos = await ProdutoController.listarTodos(page);
+  }
   
   var fotos = await produtos.docs.map(async function( produto ) {
     var foto = await FotoController.listarFotos(produto.id);
@@ -26,14 +65,18 @@ routes.get('/', async function (req, res) {
     fotos = values;
   });
 
+  //Renderização da Página
   res.render('index', {
       tituloPagina: "Todos os Produtos",
+      pesquisa,
       categorias,
+      categoriaAtual: categoria,
       produtos: produtos.docs,
       qtdPaginas: produtos.pages,
       paginaAtual: produtos.current,
-      fotos
-    })
+      fotos, 
+      resposta: res.locals.resposta
+    });
 });
 
 module.exports = routes;

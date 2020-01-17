@@ -39,6 +39,7 @@ $('#modalModProduto').on('show.bs.modal', function (event) {
     var id = button.data('id');
     var modal = $(this);
     if (id != undefined) {
+        modal.find('.modal-title').text('Modificar Produto');
         $.ajax({
             type: "get",
             url: "api/produto/id/" + id,
@@ -55,6 +56,7 @@ $('#modalModProduto').on('show.bs.modal', function (event) {
             }
         });
     } else {
+        modal.find('.modal-title').text('Adicionar Produto');
         modal.find('#frmProduto #produtoID').html(null);
         modal.find('#produtoCategoria option[value=1]').attr({
             selected: "selected"
@@ -70,27 +72,26 @@ $('#modalModCategoria').on('show.bs.modal', function (event) {
     var id = button.data('id');
     var modal = $(this);
     if (id != undefined) {
-        var parametros = {
-            "id": id
-        };
+        modal.find('.modal-title').text('Modificar Categoria');
         $.ajax({
-            type: "post",
-            url: "ajax.php?acao=listarCategoria",
-            data: parametros,
+            type: "get",
+            url: "api/categoria/id/" + id,
             dataType: "json",
             success: function (data) {
-                modal.find('#frmCategoria #categoriaID').html('<input type="hidden" name="categoriaId" value="' + data.categoria.id + '">');
-                modal.find('#categoriaNome').val(data.categoria.nome);
+                modal.find('#frmCategoria #categoriaID').html('<input type="hidden" name="categoriaId" value="' + data.id + '">');
+                modal.find('#categoriaNome').val(data.nome);
             }
         });
     } else {
+        modal.find('.modal-title').text('Adicionar Categoria');
         modal.find('#frmCategoria #categoriaID').html(null);
         modal.find('#categoriaNome').val(null);
     }
 });
-$('#modalModFoto').on('show.bs.modal', function (event) {
+$('.toast').on('show.bs.modal', function (event) {
     var button = $(event.relatedTarget);
     var id = button.data('id');
     var modal = $(this);
     modal.find('#frmFotoProduto #nomeFotoID').html('<input type="hidden" name="nomeFotoId" value="' + id + '">');
 });
+$('.toast').toast('show');

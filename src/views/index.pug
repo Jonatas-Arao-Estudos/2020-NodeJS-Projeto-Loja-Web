@@ -13,7 +13,7 @@ head
 body.bg-blue-grey-lighten-5
 nav.navbar.navbar-expand-lg.navbar-dark.bg-blue-grey-darken-3.shadow
   .container
-    a.navbar-brand(href='#') Projeto Loja
+    a.navbar-brand(href='/') Projeto Loja
     button.navbar-toggler(type='button', data-toggle='collapse', data-target='#navbarTogglerDemo01', aria-controls='navbarTogglerDemo01', aria-expanded='false', aria-label='Toggle navigation')
       span.navbar-toggler-icon
     #navbarTogglerDemo01.collapse.navbar-collapse
@@ -23,7 +23,7 @@ nav.navbar.navbar-expand-lg.navbar-dark.bg-blue-grey-darken-3.shadow
             | Categorias
           .dropdown-menu(aria-labelledby='navbarDropdownMenuLink')
             each categoria in categorias
-              a.dropdown-item(href='#')= categoria.nome
+              a.dropdown-item(href='?categoria='+categoria.id)= categoria.nome
         a.nav-link(href='#', data-toggle='modal', data-target='#modalModCategoria')
           | Adicionar
           | Categoria
@@ -31,11 +31,24 @@ nav.navbar.navbar-expand-lg.navbar-dark.bg-blue-grey-darken-3.shadow
           | Adicionar
           | Produto
       form.form-inline.my-2.my-lg-0
-        input.form-control.mr-sm-2(type='search', aria-label='Search')
+        input.form-control.mr-sm-2(name="pesquisa" type='search', aria-label='Search')
         button.btn.btn-outline-light.my-2.my-sm-0(type='submit') Pesquisar
 section.container.mt-4
   div
-    h1 #{tituloPagina}
+    if categoriaAtual
+      each categoria in categorias
+        if categoriaAtual == categoria.id
+          form#excluirCategoria(action="/", method="post")
+            input(type="hidden", name="excluirIDcategoria" value=categoria.id)
+          h1
+            | #{categoria.nome} - 
+            button.btn.btn-danger.shadow(type='submit' form="excluirCategoria") Excluir Categoria
+            |  - 
+            button.btn.btn-primary.shadow(href='#', data-toggle='modal', data-target='#modalModCategoria', data-id=categoria.id) Editar Categoria
+    else if pesquisa
+      h1 Resultados de: #{pesquisa}
+    else
+      h1 #{tituloPagina}
   .row
     each produto in produtos
       .col-lg-3.col-md-4.col-6.mt-3
@@ -51,20 +64,26 @@ section.container.mt-4
               button.btn.btn-outline-secondary(type='button', data-toggle='modal', data-target='#modalProduto', data-id=produto.id) Ver Mais
   .row.py-3
     nav.mx-auto(aria-label='Page navigation example')
+      if categoriaAtual
+        - var pageLink = '&categoria='+categoriaAtual
+      else if pesquisa
+        - var pageLink = '&pesquisa='+pesquisa
+      else
+        - var pageLink = ''
       ul.pagination.shadow
         unless paginaAtual == 1
           li.page-item
-            a.page-link.text-secondary(href='?page='+(parseInt(paginaAtual) - 1), aria-label='Previous')
+            a.page-link.text-secondary(href='?page='+(parseInt(paginaAtual) - 1)+pageLink, aria-label='Previous')
               span(aria-hidden='true') &laquo;
         - for(var i = 1; i <= qtdPaginas; i++)
           li.page-item
             if i == paginaAtual
-              a.page-link.bg-dark.text-light(href='?page='+i)= i
+              a.page-link.bg-dark.text-light(href='#')= i
             else
-              a.page-link.text-secondary(href='?page='+i)= i
+              a.page-link.text-secondary(href='?page='+i+pageLink)= i
         unless paginaAtual == qtdPaginas
           li.page-item
-            a.page-link.text-secondary(href='?page='+(parseInt(paginaAtual) + 1), aria-label='Next')
+            a.page-link.text-secondary(href='?page='+(parseInt(paginaAtual) + 1+pageLink), aria-label='Next')
               span(aria-hidden='true') &raquo;
 // Modal de Produto
 #modalProduto.modal.fade(tabindex='-1' role='dialog' aria-labelledby='modalProdutoLabel' aria-hidden='true')
@@ -118,7 +137,7 @@ section.container.mt-4
               input#categoriaNome.form-control.shadow(type='text' name='categoriaNome' value='')
             #categoriaID
       .modal-footer
-        button.btn.btn-primary(type='submit') Salvar
+        button.btn.btn-primary(type='submit' form="frmCategoria") Salvar
         button.btn.btn-secondary(type='button' data-dismiss='modal') Cancelar
 // Modal de Modificar Produto
 #modalModProduto.modal.fade(tabindex='-1' role='dialog' aria-labelledby='modalModProdutoLabel' aria-hidden='true')
@@ -150,7 +169,7 @@ section.container.mt-4
               label(for='produtoFabricante') Fabricante
               input#produtoFabricante.form-control.shadow(type='text' name='produtoFabricante')
       .modal-footer
-        button.btn.btn-primary(type='submit') Salvar
+        button.btn.btn-primary(type='submit' form="frmProduto") Salvar
         button.btn.btn-secondary(type='button' data-dismiss='modal') Cancelar
 // Modal de Modificar Foto
 #modalModFoto.modal.fade(tabindex='-1' role='dialog' aria-labelledby='modalModFotoLabel' aria-hidden='true')
@@ -167,6 +186,12 @@ section.container.mt-4
             .form-group
               input#produtoFoto.form-control(type='file' name='produtoFoto' accept='image/*')
       .modal-footer
-        button.btn.btn-primary(type='submit') Salvar
+        button.btn.btn-primary(type='submit' form='frmFotoProduto') Salvar
         button.btn.btn-secondary(type='button' data-dismiss='modal') Cancelar
+if resposta
+  .toast(role='alert', aria-live='assertive', aria-atomic='true', data-delay='5000', style='position: absolute; top: 1rem; right: 1rem;')
+    .toast-header
+      strong.mr-auto= resposta
+      button.ml-2.mb-1.close(type='button', data-dismiss='toast', aria-label='Close')
+        span(aria-hidden='true') &times;
 script(src='/js/action.js')

@@ -7,6 +7,17 @@ module.exports = {
     return res.json(categorias);
   },
 
+  async mostrarCategoria(req, res) {
+    const { id_categoria } = req.params;
+    const categoria = await Categoria.findByPk(id_categoria);
+
+    if (!categoria) {
+      return res.status(400).json({ error: 'Categoria não encontrada' });
+    }
+
+    return res.json(categoria);
+  },
+
   async cadastrar(req, res){
     const { nome } = req.body;
 

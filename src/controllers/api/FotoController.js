@@ -4,6 +4,13 @@ const Foto = require('../../models/Foto');
 module.exports = {
   async listarFotos(req, res) {
     const { id_produto } = req.params;
+
+    const produto = await Produto.findByPk(id_produto);
+
+    if (!produto) {
+      return res.status(400).json({ error: 'Produto não encontrado' });
+    }
+
     const fotos = await Foto.findAll({ where: { id_produto } });
 
     if(fotos.length == 0){

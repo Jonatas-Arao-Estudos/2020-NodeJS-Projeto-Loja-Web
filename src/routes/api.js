@@ -10,6 +10,7 @@ const routes = express.Router();
 
 //Rotas Categoria
 routes.get('/categoria', CategoriaController.listarTodos);
+routes.get('/categoria/id/:id_categoria', CategoriaController.mostrarCategoria);
 routes.post('/categoria/cadastrar', CategoriaController.cadastrar);
 routes.delete('/categoria/deletar', CategoriaController.deletar);
 routes.put('/categoria/atualizar', CategoriaController.atualizar);
