@@ -68,5 +68,80 @@ module.exports = {
     };
 
     return produtos;
+  },
+
+  async cadastrar(req){
+    const { produtoNome, produtoDescricao, produtoValor, produtoFabricante, produtoCategoria } = req.body;
+
+    const categoria = await Categoria.findByPk(produtoCategoria);
+
+    if (!categoria) {
+      return { error: 'Categoria não encontrada' };
+    }
+
+    try {
+      await Produto.create({
+        nome: produtoNome,
+        descricao: produtoDescricao,
+        valor: produtoValor,
+        fabricante: produtoFabricante,
+        id_categoria: produtoCategoria
+      });
+    } catch (e){
+      return { error: 'Erro ao cadastrar' };
+    }
+
+    return { success: 'Produto Cadastrado' };
+
+  },
+
+  async deletar(req){
+    const { excluirIDproduto } = req.body;
+
+    const verifica = await Produto.findByPk(excluirIDproduto);
+
+    if (!verifica) {
+      return { error: 'Produto não encontrado' };
+    }
+
+    try {
+      await Produto.destroy({
+        where: {
+          id: excluirIDproduto
+        }
+      });
+    } catch (e){
+      return { error: 'Erro ao deletar' };
+    }
+
+    return { success: 'Produto Deletado' };
+  },
+
+  async atualizar(req){
+    const { produtoId, produtoNome, produtoDescricao, produtoValor, produtoFabricante, produtoCategoria } = req.body;
+
+    const verifica = await Produto.findByPk(produtoId);
+
+    if (!verifica) {
+      return res.status(400).json({ error: 'Produto não encontrado' });
+    }
+
+    try {
+      await Produto.update({
+        nome: produtoNome,
+        descricao: produtoDescricao,
+        valor: produtoValor,
+        fabricante: produtoFabricante,
+        id_categoria: produtoCategoria 
+      }, {
+        where: {
+          id: produtoId
+        }
+      });
+    } catch (e){
+      return { error: 'Erro ao atualizar' };
+    }
+
+    return { success: 'Produto Atualizado'};
   }
 };

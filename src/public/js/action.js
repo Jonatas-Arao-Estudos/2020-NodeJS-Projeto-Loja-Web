@@ -8,7 +8,12 @@ $('#modalProduto').on('show.bs.modal', function (event) {
         dataType: "json",
         success: function (data) {
             modal.find('#modalFotoProduto').html('<button type="button" class="btn btn-success" data-dismiss="modal" data-toggle="modal" data-target="#modalModFoto" data-id=' + data.id + '>Adicionar Foto</button>')
-            modal.find('#modalExcluirProduto').attr("href", "?excluirProduto=" + data.id);
+            modal.find('#modalExcluirProduto').html(`
+                <form id="excluirProduto" method="post">
+                    <input type="hidden" name="excluirIDproduto" value="`+data.id+`" />
+                </form>
+                <button class="btn btn-danger" type="submit" form="excluirProduto">Excluir</button>
+            `);
             modal.find('#modalEditarProduto').html('<button type="button" class="btn btn-primary" data-dismiss="modal" data-toggle="modal" data-target="#modalModProduto" data-id=' + data.id + '>Editar</button>');
             modal.find('#modalNomeProduto').text(data.nome);
             modal.find('#modalPrecoProduto').text("R$ " + data.valor);

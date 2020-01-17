@@ -9,7 +9,7 @@ const routes = express.Router();
 //Web
 
 routes.post('/', async function (req, res, next){
-  const { categoriaId, categoriaNome, excluirIDcategoria } = req.body;
+  const { categoriaId, categoriaNome, excluirIDcategoria, produtoId, produtoNome, excluirIDproduto } = req.body;
 
   if(categoriaId){
     atualizarCategoria = await CategoriaController.atualizar(req);
@@ -33,6 +33,31 @@ routes.post('/', async function (req, res, next){
       res.locals.resposta = deletarCategoria.success;
     }else{
       res.locals.resposta = deletarCategoria.error;
+    }
+  }
+
+  if(produtoId){
+    atualizarProduto = await ProdutoController.atualizar(req);
+    if(atualizarProduto.success){
+      res.locals.resposta = atualizarProduto.success;
+    }else{
+      res.locals.resposta = atualizarProduto.error;
+    }
+  }
+  else if(produtoNome){
+    cadastrarProduto = await ProdutoController.cadastrar(req);
+    if(cadastrarProduto.success){
+      res.locals.resposta = cadastrarProduto.success;
+    }else{
+      res.locals.resposta = cadastrarProduto.error;
+    }
+  }
+  else if(excluirIDproduto){
+    deletarProduto = await ProdutoController.deletar(req);
+    if(deletarProduto.success){
+      res.locals.resposta = deletarProduto.success;
+    }else{
+      res.locals.resposta = deletarProduto.error;
     }
   }
 
