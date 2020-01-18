@@ -54,23 +54,5 @@ module.exports = {
         });
       }
     });
-  },
-
-  async deletar(req, res){
-    const { id } = req.body;
-
-    const verifica = await Foto.findByPk(id);
-
-    if (!verifica) {
-      return res.status(400).json({ error: 'Foto não encontrada' });
-    }
-
-    const foto = await Foto.destroy({
-      where: {
-        id
-      }
-    });
-
-    return res.json({ success: 'Foto Deletada'});
   }
 };

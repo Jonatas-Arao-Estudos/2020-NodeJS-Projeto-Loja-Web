@@ -1,71 +1,70 @@
+const formidable = require('formidable');
 const path = require('path');
 const fs = require('fs');
 const Produto = require('../../models/Produto');
 const Foto = require('../../models/Foto');
 
 module.exports = {
-  async listarFotos(id_produto) {
-    const fotos = await Foto.findAll({ where: { id_produto } });
+  async listarFotos(req, res, next) {
+    const { produtos } = res.locals;
 
-    return fotos;
-  },
-
-  async cadastrar(err, fields, files){
-    if(files.produtoFoto.type.startsWith('image')){
-
-      const { nomeFotoId } = fields;
-
-      const produto = await Produto.findByPk(nomeFotoId);
-
-      if (!produto) {
-        return { error: 'Produto não encontrado' };
-      }
-
+    const produtosFotos = await produtos.docs.map(async function( produto ) {
+      consulta = await Foto.findAll({ where: { id_produto: produto.id } });
+      var foto = consulta;
       try{
-        var oldpath = files.produtoFoto.path;
-        var newdir = path.join(__dirname, '../..') + "\\public\\img\\" + produto.id + "\\";
-        var newpath = newdir + files.produtoFoto.name;
-        if (!fs.existsSync(newdir)){
-          fs.mkdirSync(newdir);
-        }
-        fs.rename(oldpath, newpath, async function (err) {
-          if (err) throw err;
-          const dir = "img/"+ produto.id + "/" + files.produtoFoto.name;
-          await Foto.create({
-            foto: dir,
-            id_produto: produto.id
-          });
-        });
-      } catch (e){
-        return { error: 'Erro ao cadastrar' };
+        return { url: foto[0].foto, id: produto.id } ;
       }
+      catch{
+        return { url: "https://www.layoutit.com/img/people-q-c-600-200-1.jpg", id: produto.id } ;
+      }
+    });
 
-      return { success: 'Foto Cadastrada' };
-    }else{
-      return { error: 'Formato Inválido' };
-    }
+    await Promise.all(produtosFotos).then(function(values) {
+      res.locals.fotos = values;
+    });
 
+    next();
   },
 
-  async deletar(req){
-    const { id } = req.body;
+  async cadastrar(req, res, next){
+    var form = new formidable.IncomingForm();
+    form.parse(req, async function (err, fields, files) {
+      if(files.produtoFoto.type.startsWith('image')){
+        const { nomeFotoId } = fields;
 
-    const verifica = await Foto.findByPk(id);
+        if(nomeFotoId){
+          const produto = await Produto.findByPk(nomeFotoId);
 
-    if (!verifica) {
-      return { error: 'Foto não encontrada' };
-    }
+          if (!produto) {
+            res.locals.resposta = 'Produto não encontrado';
+          }
 
-    try{
-      const foto = await Foto.destroy({
-        where: {
-          id
+          try{
+            var oldpath = files.produtoFoto.path;
+            var newdir = path.join(__dirname, '../..') + "\\public\\img\\" + produto.id + "\\";
+            var newpath = newdir + files.produtoFoto.name;
+            if (!fs.existsSync(newdir)){
+              fs.mkdirSync(newdir);
+            }
+            fs.rename(oldpath, newpath, async function (err) {
+              if (err) throw err;
+              const dir = "img/"+ produto.id + "/" + files.produtoFoto.name;
+              await Foto.create({
+                foto: dir,
+                id_produto: produto.id
+              });
+            });
+          } catch (e){
+            res.locals.resposta = 'Erro ao cadastrar';
+          }
+
+          res.locals.resposta = 'Foto Cadastrada';
+        }else{
+          res.locals.resposta = 'Formato Inválido';
         }
-      });
-    } catch (e){
-      return { error: 'Erro ao deletar' };
-    }
+      }
+    });
 
-    return { success: 'Foto Deletada'};
+    next();
   }
 };

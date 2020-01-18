@@ -1,6 +1,6 @@
 {
   "name": "projetoloja",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Projeto de Cadastro de Produtos e Categorias",
   "main": "server.js",
   "scripts": {

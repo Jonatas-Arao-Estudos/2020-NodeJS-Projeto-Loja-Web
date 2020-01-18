@@ -26,6 +26,5 @@ routes.put('/produto/atualizar', ProdutoController.atualizar);
 //Rotas Foto
 routes.get('/produto/fotos/:id_produto', FotoController.listarFotos);
 routes.post('/produto/fotos/cadastrar', FotoController.cadastrar);
-routes.delete('/produto/fotos/deletar', FotoController.deletar);
 
 module.exports = routes;

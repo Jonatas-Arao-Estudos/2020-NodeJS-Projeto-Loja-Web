@@ -6,157 +6,196 @@ const Categoria = require('../../models/Categoria');
 const Produto = require('../../models/Produto');
 
 module.exports = {
-  async listarTodos(page) {
-    const options = {
-      page,
-      paginate: 8,
-      order: [['nome', 'ASC']]
+  async listarTodos(req, res, next) {
+    const { page = 1, categoria, pesquisa } = req.query;
+
+    if(!categoria && !pesquisa){
+      const options = {
+        page,
+        paginate: 8,
+        order: [['nome', 'ASC']]
+      }
+      const { docs, pages, total } = await Produto.paginate(options)
+
+      produtos = { 
+        docs,
+        "current": page,
+        pages,
+        total
+      };
+
+      res.locals.produtos = produtos;
+
+      next();
+    }else{
+      next();
     }
-    const { docs, pages, total } = await Produto.paginate(options)
-
-    produtos = { 
-      docs,
-      "current": page,
-      pages,
-      total
-    };
-
-    return produtos;
   },
 
-  async mostrarProduto(id_produto) {
+  async mostrarProduto(req, res, next) {
+    const { id_produto } = req.params;
+
     const produto = await Produto.findByPk(id_produto);
 
     if (!produto) {
       return { error: 'Produto não encontrado' };
     }
 
-    return produto;
+    res.locals.produto = produto;
+
+    next();
   },
 
-  async listarProdutoCategoria(page, id_categoria) {
-    const options = {
-      page,
-      paginate: 8,
-      order: [['nome', 'ASC']],
-      where: { id_categoria } 
-    }
-    const { docs, pages, total } = await Produto.paginate(options)
+  async listarProdutoCategoria(req, res, next) {
+    const { page = 1, pesquisa, categoria } = req.query;
 
-    produtos = { 
-      docs,
-      "current": page,
-      pages,
-      total
-    };
-
-    return produtos;
-  },
-
-  async listarProdutoPesquisa(page, pesquisa) {
-    const options = {
-      page,
-      paginate: 8,
-      order: [['nome', 'ASC']],
-      where: { nome: { [Op.like]: '%'+pesquisa+'%'} } 
-    }
-    const { docs, pages, total } = await Produto.paginate(options)
-
-    produtos = { 
-      docs,
-      "current": page,
-      pages,
-      total
-    };
-
-    return produtos;
-  },
-
-  async cadastrar(req){
-    const { produtoNome, produtoDescricao, produtoValor, produtoFabricante, produtoCategoria } = req.body;
-
-    const categoria = await Categoria.findByPk(produtoCategoria);
-
-    if (!categoria) {
-      return { error: 'Categoria não encontrada' };
-    }
-
-    try {
-      const produto = await Produto.create({
-        nome: produtoNome,
-        descricao: produtoDescricao,
-        valor: produtoValor,
-        fabricante: produtoFabricante,
-        id_categoria: produtoCategoria
-      });
-      const dir = path.join(__dirname, '../..') + "\\public\\img\\" + produto.id;
-      if (!fs.existsSync(dir)){
-        fs.mkdirSync(dir);
+    if(categoria && !pesquisa){
+      const options = {
+        page,
+        paginate: 8,
+        order: [['nome', 'ASC']],
+        where: { id_categoria: categoria } 
       }
-    } catch (e){
-      return { error: 'Erro ao cadastrar' };
-    }
+      const { docs, pages, total } = await Produto.paginate(options)
 
-    return { success: 'Produto Cadastrado' };
+      produtos = { 
+        docs,
+        "current": page,
+        pages,
+        total,
+        categoria
+      };
+
+      res.locals.produtos = produtos;
+
+      next();
+    }else{
+      next();
+    }
+  },
+
+  async listarProdutoPesquisa(req, res, next) {
+    const { page = 1, pesquisa, categoria } = req.query;
+
+    if(pesquisa && !categoria){
+      const options = {
+        page,
+        paginate: 8,
+        order: [['nome', 'ASC']],
+        where: { nome: { [Op.like]: '%'+pesquisa+'%'} } 
+      }
+      const { docs, pages, total } = await Produto.paginate(options)
+
+      produtos = { 
+        docs,
+        "current": page,
+        pages,
+        total,
+        pesquisa
+      };
+
+      res.locals.produtos = produtos;
+
+      next();
+    }else{
+      next();
+    }
 
   },
 
-  async deletar(req){
-    const { excluirIDproduto } = req.body;
+  async cadastrar(req, res, next){
+    const { produtoId, produtoNome, produtoDescricao, produtoValor, produtoFabricante, produtoCategoria, excluirIDproduto } = req.body;
 
-    const produto = await Produto.findByPk(excluirIDproduto);
+    if(!produtoId && produtoNome && !excluirIDproduto){
+      const categoria = await Categoria.findByPk(produtoCategoria);
 
-    if (!produto) {
-      return { error: 'Produto não encontrado' };
-    }
-      
-    try {
-      const dir = path.join(__dirname, '../..') + "\\public\\img\\" + produto.id;
-      if (fs.existsSync(dir)){
-        fs.readdir(dir, function(err, files){
-            files.forEach(file => {
-              fs.unlinkSync(dir + "\\" + file);
-            });
-            fs.rmdirSync(dir);
+      if (!categoria) {
+        res.locals.resposta = 'Categoria não encontrada';
+      }
+
+      try {
+        const produto = await Produto.create({
+          nome: produtoNome,
+          descricao: produtoDescricao,
+          valor: produtoValor,
+          fabricante: produtoFabricante,
+          id_categoria: produtoCategoria
         });
-      }
-      await Produto.destroy({
-        where: {
-          id: excluirIDproduto
+        const dir = path.join(__dirname, '../..') + "\\public\\img\\" + produto.id;
+        if (!fs.existsSync(dir)){
+          fs.mkdirSync(dir);
         }
-      });
-    } catch (e){
-      return { error: 'Erro ao deletar' };
-    }
+      } catch (e){
+        res.locals.resposta = 'Erro ao cadastrar';
+      }
 
-    return { success: 'Produto Deletado' };
+      res.locals.resposta = 'Produto Cadastrado';
+    }
+    next();
   },
 
-  async atualizar(req){
-    const { produtoId, produtoNome, produtoDescricao, produtoValor, produtoFabricante, produtoCategoria } = req.body;
+  async deletar(req, res, next){
+    const { produtoId, produtoNome, produtoDescricao, produtoValor, produtoFabricante, produtoCategoria, excluirIDproduto } = req.body;
 
-    const verifica = await Produto.findByPk(produtoId);
+    if(!produtoId && !produtoNome && excluirIDproduto){
+      const produto = await Produto.findByPk(excluirIDproduto);
 
-    if (!verifica) {
-      return res.status(400).json({ error: 'Produto não encontrado' });
-    }
-
-    try {
-      await Produto.update({
-        nome: produtoNome,
-        descricao: produtoDescricao,
-        valor: produtoValor,
-        fabricante: produtoFabricante,
-        id_categoria: produtoCategoria 
-      }, {
-        where: {
-          id: produtoId
+      if (!produto) {
+        res.locals.resposta = 'Produto não encontrado';
+      }
+        
+      try {
+        const dir = path.join(__dirname, '../..') + "\\public\\img\\" + produto.id;
+        if (fs.existsSync(dir)){
+          fs.readdir(dir, function(err, files){
+              files.forEach(file => {
+                fs.unlinkSync(dir + "\\" + file);
+              });
+              fs.rmdirSync(dir);
+          });
         }
-      });
-    } catch (e){
-      return { error: 'Erro ao atualizar' };
-    }
+        await Produto.destroy({
+          where: {
+            id: excluirIDproduto
+          }
+        });
+      } catch (e){
+        res.locals.resposta = 'Erro ao deletar';
+      }
 
-    return { success: 'Produto Atualizado'};
+      res.locals.resposta = 'Produto Deletado';
+    }
+    next();
+  },
+
+  async atualizar(req, res, next){
+    const { produtoId, produtoNome, produtoDescricao, produtoValor, produtoFabricante, produtoCategoria, excluirIDproduto } = req.body;
+
+    if(produtoId && produtoNome && !excluirIDproduto){
+      const verifica = await Produto.findByPk(produtoId);
+
+      if (!verifica) {
+        res.locals.resposta = 'Produto não encontrado';
+      }
+
+      try {
+        await Produto.update({
+          nome: produtoNome,
+          descricao: produtoDescricao,
+          valor: produtoValor,
+          fabricante: produtoFabricante,
+          id_categoria: produtoCategoria 
+        }, {
+          where: {
+            id: produtoId
+          }
+        });
+      } catch (e){
+        res.locals.resposta = 'Erro ao atualizar';
+      }
+
+      res.locals.resposta = 'Produto Atualizado';
+    }
+    next();
   }
 };

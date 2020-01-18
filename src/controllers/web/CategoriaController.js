@@ -1,71 +1,86 @@
 const Categoria = require('../../models/Categoria');
 
 module.exports = {
-  async listarTodos() {
+  async listarTodos(req, res, next) {
     const categorias = await Categoria.findAll({ order: [['nome', 'ASC']] });
-
-    return categorias;
+    res.locals.categorias = categorias;
+    next();
   },
 
-  async cadastrar(req){
+  async cadastrar(req, res, next){
+    const { categoriaId, categoriaNome, excluirIDcategoria} = req.body;
+
+    if(!categoriaId && categoriaNome && !excluirIDcategoria){
 
     try {
       const { categoriaNome } = req.body;
       await Categoria.create({ nome: categoriaNome });
     } catch (e) {
-      return { error: 'Erro ao cadastrar' };
+      res.locals.resposta = 'Erro ao cadastrar';
     }
 
-    return { success: 'Cadastrado com sucesso' };
+    res.locals.resposta = 'Cadastrado com sucesso' ;
+
+    }
+    next();
 
   },
 
-  async deletar(req){
-    const { excluirIDcategoria } = req.body;
+  async deletar(req, res, next){
+    const { categoriaId, categoriaNome, excluirIDcategoria} = req.body;
 
-    const verifica = await Categoria.findByPk(excluirIDcategoria);
+    if(!categoriaId && !categoriaNome && excluirIDcategoria){
+      const verifica = await Categoria.findByPk(excluirIDcategoria);
 
-    if (!verifica) {
-      return { error: 'Categoria não encontrada' };
+      if (!verifica) {
+        res.locals.resposta = 'Categoria não encontrada';
+
+      }
+
+      try {
+        await Categoria.destroy({
+          where: {
+            id: excluirIDcategoria
+          }
+        });
+      } catch (e){
+        res.locals.resposta = 'Erro ao deletar';
+
+      }
+
+      res.locals.resposta = 'Categoria Deletada';
     }
-
-    try {
-      await Categoria.destroy({
-        where: {
-          id: excluirIDcategoria
-        }
-      });
-    } catch (e){
-      return { error: 'Erro ao deletar' };
-    }
-
-    return { success: 'Categoria Deletada' };
+    next();
 
   },
 
-  async atualizar(req){
+  async atualizar(req, res, next){
+    const { categoriaId, categoriaNome, excluirIDcategoria} = req.body;
 
-    const { categoriaNome, categoriaId } = req.body;
+    if(categoriaId && categoriaNome && !excluirIDcategoria){
+      const verifica = await Categoria.findByPk(categoriaId);
 
-    const verifica = await Categoria.findByPk(categoriaId);
+      if (!verifica) {
+        res.locals.resposta = 'Categoria não encontrada';
 
-    if (!verifica) {
-      return { error: 'Categoria não encontrada' };
+      }
+
+      try {
+        await Categoria.update({
+          nome: categoriaNome
+        }, {
+          where: {
+            id: categoriaId
+          }
+        });
+      } catch (error) {
+        res.locals.resposta = 'Erro ao atualizar';
+
+      }
+
+      res.locals.resposta = 'Categoria Atualizada';
     }
-
-    try {
-      await Categoria.update({
-        nome: categoriaNome
-      }, {
-        where: {
-          id: categoriaId
-        }
-      });
-    } catch (error) {
-      return { error: 'Erro ao atualizar' };
-    }
-
-    return { success: 'Categoria Atualizada' };
+    next();
 
   }
 };
