@@ -60,31 +60,32 @@ section.container.mt-4
             .bg-white.p-3.rounded
               h5.card-title.card-title-overlay
                 | #{produto.nome} - 
-                span.badge.badge-secondary #{produto.valor}
+                span.badge.badge-secondary R$ #{produto.valor}
               button.btn.btn-outline-secondary(type='button', data-toggle='modal', data-target='#modalProduto', data-id=produto.id) Ver Mais
   .row.py-3
     nav.mx-auto(aria-label='Page navigation example')
-      if categoriaAtual
-        - var pageLink = '&categoria='+categoriaAtual
-      else if pesquisa
-        - var pageLink = '&pesquisa='+pesquisa
-      else
-        - var pageLink = ''
-      ul.pagination.shadow
-        unless paginaAtual == 1
-          li.page-item
-            a.page-link.text-secondary(href='?page='+(parseInt(paginaAtual) - 1)+pageLink, aria-label='Previous')
-              span(aria-hidden='true') &laquo;
-        - for(var i = 1; i <= qtdPaginas; i++)
-          li.page-item
-            if i == paginaAtual
-              a.page-link.bg-dark.text-light(href='#')= i
-            else
-              a.page-link.text-secondary(href='?page='+i+pageLink)= i
-        unless paginaAtual == qtdPaginas
-          li.page-item
-            a.page-link.text-secondary(href='?page='+(parseInt(paginaAtual) + 1+pageLink), aria-label='Next')
-              span(aria-hidden='true') &raquo;
+      if qtdPaginas > 1
+        if categoriaAtual
+          - var pageLink = '&categoria='+categoriaAtual
+        else if pesquisa
+          - var pageLink = '&pesquisa='+pesquisa
+        else
+          - var pageLink = ''
+        ul.pagination.shadow
+          unless paginaAtual == 1
+            li.page-item
+              a.page-link.text-secondary(href='?page='+(parseInt(paginaAtual) - 1)+pageLink, aria-label='Previous')
+                span(aria-hidden='true') &laquo;
+          - for(var i = 1; i <= qtdPaginas; i++)
+            li.page-item
+              if i == paginaAtual
+                a.page-link.bg-dark.text-light(href='#')= i
+              else
+                a.page-link.text-secondary(href='?page='+i+pageLink)= i
+          unless paginaAtual == qtdPaginas
+            li.page-item
+              a.page-link.text-secondary(href='?page='+(parseInt(paginaAtual) + 1+pageLink), aria-label='Next')
+                span(aria-hidden='true') &raquo;
 // Modal de Produto
 #modalProduto.modal.fade(tabindex='-1' role='dialog' aria-labelledby='modalProdutoLabel' aria-hidden='true')
   .modal-dialog.modal-dialog-centered.modal-lg(role='document')

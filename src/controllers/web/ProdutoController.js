@@ -1,4 +1,6 @@
 const { Sequelize } = require('sequelize');
+const path = require('path');
+const fs = require('fs');
 const Op = Sequelize.Op;
 const Categoria = require('../../models/Categoria');
 const Produto = require('../../models/Produto');
@@ -80,13 +82,17 @@ module.exports = {
     }
 
     try {
-      await Produto.create({
+      const produto = await Produto.create({
         nome: produtoNome,
         descricao: produtoDescricao,
         valor: produtoValor,
         fabricante: produtoFabricante,
         id_categoria: produtoCategoria
       });
+      const dir = path.join(__dirname, '../..') + "\\public\\img\\" + produto.id;
+      if (!fs.existsSync(dir)){
+        fs.mkdirSync(dir);
+      }
     } catch (e){
       return { error: 'Erro ao cadastrar' };
     }
@@ -98,13 +104,22 @@ module.exports = {
   async deletar(req){
     const { excluirIDproduto } = req.body;
 
-    const verifica = await Produto.findByPk(excluirIDproduto);
+    const produto = await Produto.findByPk(excluirIDproduto);
 
-    if (!verifica) {
+    if (!produto) {
       return { error: 'Produto não encontrado' };
     }
-
+      
     try {
+      const dir = path.join(__dirname, '../..') + "\\public\\img\\" + produto.id;
+      if (fs.existsSync(dir)){
+        fs.readdir(dir, function(err, files){
+            files.forEach(file => {
+              fs.unlinkSync(dir + "\\" + file);
+            });
+            fs.rmdirSync(dir);
+        });
+      }
       await Produto.destroy({
         where: {
           id: excluirIDproduto

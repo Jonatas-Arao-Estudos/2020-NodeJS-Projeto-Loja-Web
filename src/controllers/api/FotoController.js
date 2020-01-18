@@ -1,3 +1,6 @@
+const path = require('path');
+const fs = require('fs');
+const formidable = require('formidable');
 const Produto = require('../../models/Produto');
 const Foto = require('../../models/Foto');
 
@@ -23,19 +26,34 @@ module.exports = {
   },
 
   async cadastrar(req, res){
-    const { foto, id_produto } = req.body;
 
-    const produto = await Produto.findByPk(id_produto);
+    var form = new formidable.IncomingForm();
+    form.parse(req, async function (err, fields, files) {
+      if(files.foto.type.startsWith('image')){
+        const { id_produto } = fields;
 
-    if (!produto) {
-      return res.status(400).json({ error: 'Produto não encontrado' });
-    }
+        const produto = await Produto.findByPk(id_produto);
+    
+        if (!produto) {
+          return res.status(400).json({ error: 'Produto não encontrado' });
+        }
 
-    const fotos = await Foto.create({
-      foto, id_produto
+        var oldpath = files.foto.path;
+        var newdir = path.join(__dirname, '../..') + "\\public\\img\\" + produto.id + "\\";
+        var newpath = newdir + files.foto.name;
+        if (!fs.existsSync(newdir)){
+          fs.mkdirSync(newdir);
+        }
+        fs.rename(oldpath, newpath, async function (err) {
+          if (err) throw err;
+          const foto = "img/"+ produto.id + "/" + files.foto.name;  
+          const fotos = await Foto.create({
+            foto, id_produto
+          });  
+          return res.json(fotos);
+        });
+      }
     });
-
-    return res.json(fotos);
   },
 
   async deletar(req, res){
@@ -54,31 +72,5 @@ module.exports = {
     });
 
     return res.json({ success: 'Foto Deletada'});
-  },
-
-  async atualizar(req, res){
-    const { id, foto, id_produto } = req.body;
-
-    const verifica = await Foto.findByPk(id);
-
-    if (!verifica) {
-      return res.status(400).json({ error: 'Foto não encontrada' });
-    }
-
-    const produto = await Produto.findByPk(id_produto);
-
-    if (!produto) {
-      return res.status(400).json({ error: 'Produto não encontrado' });
-    }
-
-    const fotos = await Foto.update({
-      foto, id_produto
-    }, {
-      where: {
-        id
-      }
-    });
-
-    return res.json({ success: 'Foto Atualizada'});
   }
 };

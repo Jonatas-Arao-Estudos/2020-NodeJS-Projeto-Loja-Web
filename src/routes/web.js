@@ -1,4 +1,5 @@
 const express = require('express');
+const formidable = require('formidable');
 
 const CategoriaController = require('../controllers/web/CategoriaController');
 const ProdutoController = require('../controllers/web/ProdutoController');
@@ -12,7 +13,7 @@ routes.post('/', async function (req, res, next){
   const { categoriaId, categoriaNome, excluirIDcategoria, produtoId, produtoNome, excluirIDproduto } = req.body;
 
   if(categoriaId){
-    atualizarCategoria = await CategoriaController.atualizar(req);
+    const atualizarCategoria = await CategoriaController.atualizar(req);
     if(atualizarCategoria.success){
       res.locals.resposta = atualizarCategoria.success;
     }else{
@@ -20,7 +21,7 @@ routes.post('/', async function (req, res, next){
     }
   }
   else if(categoriaNome){
-    cadastrarCategoria = await CategoriaController.cadastrar(req);
+    const cadastrarCategoria = await CategoriaController.cadastrar(req);
     if(cadastrarCategoria.success){
       res.locals.resposta = cadastrarCategoria.success;
     }else{
@@ -28,7 +29,7 @@ routes.post('/', async function (req, res, next){
     }
   }
   else if(excluirIDcategoria){
-    deletarCategoria = await CategoriaController.deletar(req);
+    const deletarCategoria = await CategoriaController.deletar(req);
     if(deletarCategoria.success){
       res.locals.resposta = deletarCategoria.success;
     }else{
@@ -37,7 +38,7 @@ routes.post('/', async function (req, res, next){
   }
 
   if(produtoId){
-    atualizarProduto = await ProdutoController.atualizar(req);
+    const atualizarProduto = await ProdutoController.atualizar(req);
     if(atualizarProduto.success){
       res.locals.resposta = atualizarProduto.success;
     }else{
@@ -45,7 +46,7 @@ routes.post('/', async function (req, res, next){
     }
   }
   else if(produtoNome){
-    cadastrarProduto = await ProdutoController.cadastrar(req);
+    const cadastrarProduto = await ProdutoController.cadastrar(req);
     if(cadastrarProduto.success){
       res.locals.resposta = cadastrarProduto.success;
     }else{
@@ -53,13 +54,29 @@ routes.post('/', async function (req, res, next){
     }
   }
   else if(excluirIDproduto){
-    deletarProduto = await ProdutoController.deletar(req);
+    const deletarProduto = await ProdutoController.deletar(req);
     if(deletarProduto.success){
       res.locals.resposta = deletarProduto.success;
     }else{
       res.locals.resposta = deletarProduto.error;
     }
   }
+
+  var form = new formidable.IncomingForm();
+  form.parse(req, async function (err, fields, files) {
+
+    const { nomeFotoId } = fields;
+
+    if(nomeFotoId){
+      const cadastrarFoto = await FotoController.cadastrar(err, fields, files);
+      if(cadastrarFoto.success){
+        res.locals.resposta = cadastrarFoto.success;
+      }else{
+        res.locals.resposta = cadastrarFoto.error;
+      }
+    }
+
+  });
 
   next();
 });

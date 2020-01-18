@@ -1,3 +1,5 @@
+const path = require('path');
+const fs = require('fs');
 const Categoria = require('../../models/Categoria');
 const Produto = require('../../models/Produto');
 
@@ -65,6 +67,10 @@ module.exports = {
     const produto = await Produto.create({
       nome, descricao, valor, fabricante, id_categoria
     });
+    const dir = path.join(__dirname, '../..') + "\\public\\img\\" + produto.id;
+      if (!fs.existsSync(dir)){
+        fs.mkdirSync(dir);
+      }
 
     return res.json(produto);
   },
@@ -72,13 +78,23 @@ module.exports = {
   async deletar(req, res){
     const { id } = req.body;
 
-    const verifica = await Produto.findByPk(id);
+    const produto = await Produto.findByPk(id);
 
-    if (!verifica) {
+    if (!produto) {
       return res.status(400).json({ error: 'Produto não encontrado' });
     }
 
-    const produto = await Produto.destroy({
+    const dir = path.join(__dirname, '../..') + "\\public\\img\\" + produto.id;
+    if (fs.existsSync(dir)){
+      fs.readdir(dir, function(err, files){
+          files.forEach(file => {
+            fs.unlinkSync(dir + "\\" + file);
+          });
+          fs.rmdirSync(dir);
+      });
+    }
+
+    await Produto.destroy({
       where: {
         id
       }
