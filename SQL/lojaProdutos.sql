@@ -27,11 +27,11 @@ USE `loja`;
 -- --------------------------------------------------------
 
 --
--- Estrutura da tabela `Categoria`
+-- Estrutura da tabela `categoria`
 --
 
-DROP TABLE IF EXISTS `Categoria`;
-CREATE TABLE IF NOT EXISTS `Categoria` (
+DROP TABLE IF EXISTS `categoria`;
+CREATE TABLE IF NOT EXISTS `categoria` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `nome` varchar(100) NOT NULL,
   PRIMARY KEY (`id`)
@@ -40,11 +40,11 @@ CREATE TABLE IF NOT EXISTS `Categoria` (
 -- --------------------------------------------------------
 
 --
--- Estrutura da tabela `Foto`
+-- Estrutura da tabela `foto`
 --
 
-DROP TABLE IF EXISTS `Foto`;
-CREATE TABLE IF NOT EXISTS `Foto` (
+DROP TABLE IF EXISTS `foto`;
+CREATE TABLE IF NOT EXISTS `foto` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `id_produto` int(11) DEFAULT NULL,
   `foto` varchar(120) NOT NULL,
@@ -55,11 +55,11 @@ CREATE TABLE IF NOT EXISTS `Foto` (
 -- --------------------------------------------------------
 
 --
--- Estrutura da tabela `Produto`
+-- Estrutura da tabela `produto`
 --
 
-DROP TABLE IF EXISTS `Produto`;
-CREATE TABLE IF NOT EXISTS `Produto` (
+DROP TABLE IF EXISTS `produto`;
+CREATE TABLE IF NOT EXISTS `produto` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `nome` varchar(100) NOT NULL,
   `descricao` longtext,
@@ -77,14 +77,14 @@ CREATE TABLE IF NOT EXISTS `Produto` (
 --
 -- Limitadores para a tabela `foto`
 --
-ALTER TABLE `Foto`
-  ADD CONSTRAINT `foto_ibfk_1` FOREIGN KEY (`id_produto`) REFERENCES `Produto` (`id`) ON DELETE CASCADE;
+ALTER TABLE `foto`
+  ADD CONSTRAINT `foto_ibfk_1` FOREIGN KEY (`id_produto`) REFERENCES `produto` (`id`) ON DELETE CASCADE;
 
 --
 -- Limitadores para a tabela `produto`
 --
-ALTER TABLE `Produto`
-  ADD CONSTRAINT `produto_ibfk_1` FOREIGN KEY (`id_categoria`) REFERENCES `Categoria` (`id`) ON DELETE SET NULL;
+ALTER TABLE `produto`
+  ADD CONSTRAINT `produto_ibfk_1` FOREIGN KEY (`id_categoria`) REFERENCES `categoria` (`id`) ON DELETE SET NULL;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

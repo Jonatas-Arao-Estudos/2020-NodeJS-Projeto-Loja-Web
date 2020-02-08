@@ -5,7 +5,7 @@ class Categoria extends Model {
       super.init({
         nome: DataTypes.STRING(100)
       }, {
-        sequelize , modelName: 'Categoria'
+        sequelize , modelName: 'Categoria', tableName: 'categoria'
       })
     }
   

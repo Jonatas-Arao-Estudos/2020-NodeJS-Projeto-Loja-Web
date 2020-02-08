@@ -5,7 +5,7 @@ class Foto extends Model {
       super.init({
         foto: DataTypes.STRING(120),
       }, {
-        sequelize, modelName: 'Foto'
+        sequelize, modelName: 'Foto', tableName: 'foto'
       })
     }
   

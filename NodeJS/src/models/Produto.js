@@ -10,7 +10,7 @@ class Produto extends Model {
         valor: DataTypes.DECIMAL(10,2),
         fabricante: DataTypes.STRING(100)
       }, {
-        sequelize, modelName: 'Produto'
+        sequelize, modelName: 'Produto', tableName: 'produto'
       })
     }
   
