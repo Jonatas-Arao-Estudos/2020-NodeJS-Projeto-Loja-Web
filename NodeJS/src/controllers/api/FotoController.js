@@ -1,5 +1,6 @@
 const path = require('path');
 const fs = require('fs');
+var mv = require('mv');
 const formidable = require('formidable');
 const Produto = require('../../models/Produto');
 const Foto = require('../../models/Foto');
@@ -44,7 +45,7 @@ module.exports = {
         if (!fs.existsSync(newdir)){
           fs.mkdirSync(newdir);
         }
-        fs.rename(oldpath, newpath, async function (err) {
+        mv(oldpath, newpath, async function (err) {
           if (err) throw err;
           const foto = "img/"+ produto.id + "/" + files.foto.name;  
           const fotos = await Foto.create({
