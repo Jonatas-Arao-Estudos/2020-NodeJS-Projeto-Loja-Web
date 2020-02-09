@@ -67,7 +67,7 @@ module.exports = {
     const produto = await Produto.create({
       nome, descricao, valor, fabricante, id_categoria
     });
-    const dir = path.join(__dirname, '../..') + "\\public\\img\\" + produto.id;
+    const dir = path.join(__dirname, '../..') + "/public/img/" + produto.id;
       if (!fs.existsSync(dir)){
         fs.mkdirSync(dir);
       }
@@ -84,11 +84,11 @@ module.exports = {
       return res.status(400).json({ error: 'Produto não encontrado' });
     }
 
-    const dir = path.join(__dirname, '../..') + "\\public\\img\\" + produto.id;
+    const dir = path.join(__dirname, '../..') + "/public/img/" + produto.id;
     if (fs.existsSync(dir)){
       fs.readdir(dir, function(err, files){
           files.forEach(file => {
-            fs.unlinkSync(dir + "\\" + file);
+            fs.unlinkSync(dir + "/" + file);
           });
           fs.rmdirSync(dir);
       });

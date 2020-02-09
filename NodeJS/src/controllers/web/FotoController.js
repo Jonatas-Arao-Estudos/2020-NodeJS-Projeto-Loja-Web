@@ -41,7 +41,7 @@ module.exports = {
 
           try{
             var oldpath = files.produtoFoto.path;
-            var newdir = path.join(__dirname, '../..') + "\\public\\img\\" + produto.id + "\\";
+            var newdir = path.join(__dirname, '../..') + "/public/img/" + produto.id + "/";
             var newpath = newdir + files.produtoFoto.name;
             if (!fs.existsSync(newdir)){
               fs.mkdirSync(newdir);

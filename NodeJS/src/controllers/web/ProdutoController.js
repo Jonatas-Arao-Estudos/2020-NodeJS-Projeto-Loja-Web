@@ -121,7 +121,7 @@ module.exports = {
           fabricante: produtoFabricante,
           id_categoria: produtoCategoria
         });
-        const dir = path.join(__dirname, '../..') + "\\public\\img\\" + produto.id;
+        const dir = path.join(__dirname, '../..') + "/public/img/" + produto.id;
         if (!fs.existsSync(dir)){
           fs.mkdirSync(dir);
         }
@@ -145,11 +145,11 @@ module.exports = {
       }
         
       try {
-        const dir = path.join(__dirname, '../..') + "\\public\\img\\" + produto.id;
+        const dir = path.join(__dirname, '../..') + "/public/img/" + produto.id;
         if (fs.existsSync(dir)){
           fs.readdir(dir, function(err, files){
               files.forEach(file => {
-                fs.unlinkSync(dir + "\\" + file);
+                fs.unlinkSync(dir + "/" + file);
               });
               fs.rmdirSync(dir);
           });
