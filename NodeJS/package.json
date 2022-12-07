@@ -18,7 +18,7 @@
   },
   "homepage": "https://github.com/Jonatas-Arao-Estudos/2020-NodeJS-Projeto-Loja-Web#readme",
   "dependencies": {
-    "express": "^4.17.1",
+    "express": "^4.18.2",
     "formidable": "^1.2.1",
     "mv": "^2.1.1",
     "mysql2": "^2.1.0",
